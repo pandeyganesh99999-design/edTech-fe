@@ -1,0 +1,10 @@
+.right-sidebar {
+  width: 280px;
+  background: white;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
