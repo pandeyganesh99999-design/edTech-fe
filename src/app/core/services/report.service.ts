@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
+import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { PaginatedResponse } from '../models/api.model';
 import {
   Report,
   ReportData,
   ReportType,
-  ReportParameter,
-  PaginatedResponse
+  ReportParameter
 } from '../models/domain.model';
 
 @Injectable({
@@ -17,6 +19,23 @@ export class ReportService {
 
   constructor(private apiService: ApiService) {}
 
+  private buildHttpParams(params: any): HttpParams {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null) {
+          const value = params[key];
+          if (typeof value === 'boolean') {
+            httpParams = httpParams.set(key, value.toString());
+          } else {
+            httpParams = httpParams.set(key, value);
+          }
+        }
+      });
+    }
+    return httpParams;
+  }
+
   // Report Templates
   getReports(params?: {
     type?: ReportType;
@@ -24,32 +43,50 @@ export class ReportService {
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<Report>> {
-    return this.apiService.getPaginated<Report>(this.endpoint, params);
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const queryParams: any = {};
+    if (params?.type) queryParams.type = params.type;
+    if (params?.isPublic !== undefined) queryParams.isPublic = params.isPublic;
+
+    return this.apiService.getPaginated<Report>(this.endpoint, page, limit, this.buildHttpParams(queryParams));
   }
 
   getReportById(id: string): Observable<Report> {
-    return this.apiService.get<Report>(`${this.endpoint}/${id}`);
+    return this.apiService.get<Report>(`${this.endpoint}/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
   createReport(report: Omit<Report, 'id' | 'createdAt' | 'updatedAt'>): Observable<Report> {
-    return this.apiService.post<Report>(this.endpoint, report);
+    return this.apiService.post<Report>(this.endpoint, report).pipe(
+      map(response => response.data)
+    );
   }
 
   updateReport(id: string, report: Partial<Report>): Observable<Report> {
-    return this.apiService.put<Report>(`${this.endpoint}/${id}`, report);
+    return this.apiService.put<Report>(`${this.endpoint}/${id}`, report).pipe(
+      map(response => response.data)
+    );
   }
 
   deleteReport(id: string): Observable<void> {
-    return this.apiService.delete<void>(`${this.endpoint}/${id}`);
+    return this.apiService.delete<void>(`${this.endpoint}/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
   // Report Generation
   generateReport(reportId: string, parameters: Record<string, any>): Observable<ReportData> {
-    return this.apiService.post<ReportData>(`${this.endpoint}/${reportId}/generate`, { parameters });
+    return this.apiService.post<ReportData>(`${this.endpoint}/${reportId}/generate`, { parameters }).pipe(
+      map(response => response.data)
+    );
   }
 
   generateCustomReport(type: ReportType, parameters: Record<string, any>): Observable<ReportData> {
-    return this.apiService.post<ReportData>(`${this.endpoint}/generate/${type}`, { parameters });
+    return this.apiService.post<ReportData>(`${this.endpoint}/generate/${type}`, { parameters }).pipe(
+      map(response => response.data)
+    );
   }
 
   // Predefined Reports
@@ -61,11 +98,16 @@ export class ReportService {
     status?: string;
   }): Observable<ReportData> {
     const queryParams: any = {
-      ...params,
       startDate: params.startDate.toISOString(),
       endDate: params.endDate.toISOString()
     };
-    return this.apiService.get<ReportData>(`${this.endpoint}/attendance`, queryParams);
+    if (params.employeeId) queryParams.employeeId = params.employeeId;
+    if (params.department) queryParams.department = params.department;
+    if (params.status) queryParams.status = params.status;
+
+    return this.apiService.get<ReportData>(`${this.endpoint}/attendance`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   getLeaveReport(params: {
@@ -77,11 +119,17 @@ export class ReportService {
     status?: string;
   }): Observable<ReportData> {
     const queryParams: any = {
-      ...params,
       startDate: params.startDate.toISOString(),
       endDate: params.endDate.toISOString()
     };
-    return this.apiService.get<ReportData>(`${this.endpoint}/leave`, queryParams);
+    if (params.employeeId) queryParams.employeeId = params.employeeId;
+    if (params.department) queryParams.department = params.department;
+    if (params.leaveType) queryParams.leaveType = params.leaveType;
+    if (params.status) queryParams.status = params.status;
+
+    return this.apiService.get<ReportData>(`${this.endpoint}/leave`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   getProductivityReport(params: {
@@ -92,11 +140,16 @@ export class ReportService {
     metric?: string;
   }): Observable<ReportData> {
     const queryParams: any = {
-      ...params,
       startDate: params.startDate.toISOString(),
       endDate: params.endDate.toISOString()
     };
-    return this.apiService.get<ReportData>(`${this.endpoint}/productivity`, queryParams);
+    if (params.employeeId) queryParams.employeeId = params.employeeId;
+    if (params.department) queryParams.department = params.department;
+    if (params.metric) queryParams.metric = params.metric;
+
+    return this.apiService.get<ReportData>(`${this.endpoint}/productivity`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   getPayrollReport(params: {
@@ -105,35 +158,52 @@ export class ReportService {
     employeeId?: string;
     department?: string;
   }): Observable<ReportData> {
-    return this.apiService.get<ReportData>(`${this.endpoint}/payroll`, params);
+    const queryParams = this.buildHttpParams(params);
+    return this.apiService.get<ReportData>(`${this.endpoint}/payroll`, queryParams).pipe(
+      map(response => response.data)
+    );
   }
 
   // Export functionality
   exportReport(reportId: string, parameters: Record<string, any>, format: 'csv' | 'excel' | 'pdf'): Observable<Blob> {
-    return this.apiService.download(`${this.endpoint}/${reportId}/export`, {
+    const queryParams = this.buildHttpParams({
       ...parameters,
       format
     });
+    return this.apiService.get<Blob>(`${this.endpoint}/${reportId}/export`, queryParams).pipe(
+      map(response => response.data)
+    );
   }
 
   exportAttendanceReport(params: any, format: 'csv' | 'excel' | 'pdf'): Observable<Blob> {
     const queryParams: any = {
-      ...params,
       startDate: params.startDate.toISOString(),
       endDate: params.endDate.toISOString(),
       format
     };
-    return this.apiService.download(`${this.endpoint}/attendance/export`, queryParams);
+    if (params.employeeId) queryParams.employeeId = params.employeeId;
+    if (params.department) queryParams.department = params.department;
+    if (params.status) queryParams.status = params.status;
+
+    return this.apiService.get<Blob>(`${this.endpoint}/attendance/export`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   exportLeaveReport(params: any, format: 'csv' | 'excel' | 'pdf'): Observable<Blob> {
     const queryParams: any = {
-      ...params,
       startDate: params.startDate.toISOString(),
       endDate: params.endDate.toISOString(),
       format
     };
-    return this.apiService.download(`${this.endpoint}/leave/export`, queryParams);
+    if (params.employeeId) queryParams.employeeId = params.employeeId;
+    if (params.department) queryParams.department = params.department;
+    if (params.leaveType) queryParams.leaveType = params.leaveType;
+    if (params.status) queryParams.status = params.status;
+
+    return this.apiService.get<Blob>(`${this.endpoint}/leave/export`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   // Dashboard data
@@ -145,7 +215,9 @@ export class ReportService {
     if (params?.startDate) queryParams.startDate = params.startDate.toISOString();
     if (params?.endDate) queryParams.endDate = params.endDate.toISOString();
 
-    return this.apiService.get<any>(`${this.endpoint}/dashboard`, queryParams);
+    return this.apiService.get<any>(`${this.endpoint}/dashboard`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   // Scheduled reports
@@ -154,19 +226,27 @@ export class ReportService {
     recipients: string[];
     parameters: Record<string, any>;
   }): Observable<any> {
-    return this.apiService.post<any>(`${this.endpoint}/${reportId}/schedule`, schedule);
+    return this.apiService.post<any>(`${this.endpoint}/${reportId}/schedule`, schedule).pipe(
+      map(response => response.data)
+    );
   }
 
   getScheduledReports(): Observable<any[]> {
-    return this.apiService.get<any[]>(`${this.endpoint}/scheduled`);
+    return this.apiService.get<any[]>(`${this.endpoint}/scheduled`).pipe(
+      map(response => response.data)
+    );
   }
 
   updateScheduledReport(id: string, updates: any): Observable<any> {
-    return this.apiService.put<any>(`${this.endpoint}/scheduled/${id}`, updates);
+    return this.apiService.put<any>(`${this.endpoint}/scheduled/${id}`, updates).pipe(
+      map(response => response.data)
+    );
   }
 
   deleteScheduledReport(id: string): Observable<void> {
-    return this.apiService.delete<void>(`${this.endpoint}/scheduled/${id}`);
+    return this.apiService.delete<void>(`${this.endpoint}/scheduled/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
   // Report sharing
@@ -174,7 +254,9 @@ export class ReportService {
     return this.apiService.post<any>(`${this.endpoint}/${reportId}/share`, {
       recipients,
       parameters
-    });
+    }).pipe(
+      map(response => response.data)
+    );
   }
 
   // Report history
@@ -184,6 +266,12 @@ export class ReportService {
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<any>> {
-    return this.apiService.getPaginated<any>(`${this.endpoint}/history`, params);
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const queryParams: any = {};
+    if (params?.reportId) queryParams.reportId = params.reportId;
+    if (params?.userId) queryParams.userId = params.userId;
+
+    return this.apiService.getPaginated<any>(`${this.endpoint}/history`, page, limit, this.buildHttpParams(queryParams));
   }
 }

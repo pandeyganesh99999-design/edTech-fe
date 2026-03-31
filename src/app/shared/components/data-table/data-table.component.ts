@@ -221,7 +221,7 @@ export interface TableAction {
         <div class="pagination-section" *ngIf="pagination">
           <div class="pagination-info">
             Showing {{ (currentPage - 1) * pageSize + 1 }} to
-            {{ Math.min(currentPage * pageSize, totalItems) }} of
+            {{ mathMin(currentPage * pageSize, totalItems) }} of
             {{ totalItems }} entries
           </div>
 
@@ -809,22 +809,22 @@ export class DataTableComponent implements OnInit, OnChanges {
     });
   }
 
-  private hasActiveFilters(): boolean {
+  public hasActiveFilters(): boolean {
     return Object.values(this.filters).some(v => v);
   }
 
-  private getColSpan(): number {
+  public getColSpan(): number {
     let span = this.columns.length;
     if (this.selectable) span++;
     if (this.actions.length > 0) span++;
     return span;
   }
 
-  private getBooleanIcon(value: boolean): string {
+  public getBooleanIcon(value: boolean): string {
     return value ? 'bi-check-circle-fill text-success' : 'bi-x-circle-fill text-muted';
   }
 
-  private getActionColor(action: string): string {
+  public getActionColor(action: string): string {
     const actionColors: { [key: string]: string } = {
       'edit': 'primary',
       'delete': 'danger',
@@ -835,7 +835,7 @@ export class DataTableComponent implements OnInit, OnChanges {
     return actionColors[action] || 'primary';
   }
 
-  private getActionLabel(action: string): string {
+  public getActionLabel(action: string): string {
     const actionLabels: { [key: string]: string } = {
       'edit': 'Edit',
       'delete': 'Delete',
@@ -844,6 +844,10 @@ export class DataTableComponent implements OnInit, OnChanges {
       'reject': 'Reject'
     };
     return actionLabels[action] || action;
+  }
+
+  public mathMin(a: number, b: number): number {
+    return Math.min(a, b);
   }
 
   getVisiblePages(): number[] {

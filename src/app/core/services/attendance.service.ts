@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
+import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { PaginatedResponse } from '../models/api.model';
 import {
   Attendance,
   AttendanceRecord,
   PunchRecord,
-  AttendanceStatus,
-  PaginatedResponse
+  AttendanceStatus
 } from '../models/domain.model';
 
 @Injectable({
@@ -17,6 +19,18 @@ export class AttendanceService {
 
   constructor(private apiService: ApiService) {}
 
+  private buildHttpParams(params: any): HttpParams {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null) {
+          httpParams = httpParams.set(key, params[key]);
+        }
+      });
+    }
+    return httpParams;
+  }
+
   // Attendance Records
   getAttendance(params?: {
     employeeId?: string;
@@ -26,15 +40,21 @@ export class AttendanceService {
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<Attendance>> {
-    const queryParams: any = { ...params };
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const queryParams: any = {};
+    if (params?.employeeId) queryParams.employeeId = params.employeeId;
+    if (params?.status) queryParams.status = params.status;
     if (params?.startDate) queryParams.startDate = params.startDate.toISOString();
     if (params?.endDate) queryParams.endDate = params.endDate.toISOString();
 
-    return this.apiService.getPaginated<Attendance>(this.endpoint, queryParams);
+    return this.apiService.getPaginated<Attendance>(this.endpoint, page, limit, this.buildHttpParams(queryParams));
   }
 
   getAttendanceById(id: string): Observable<Attendance> {
-    return this.apiService.get<Attendance>(`${this.endpoint}/${id}`);
+    return this.apiService.get<Attendance>(`${this.endpoint}/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
   getEmployeeAttendance(employeeId: string, params?: {
@@ -43,11 +63,15 @@ export class AttendanceService {
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<Attendance>> {
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
     const queryParams: any = { ...params };
     if (params?.startDate) queryParams.startDate = params.startDate.toISOString();
     if (params?.endDate) queryParams.endDate = params.endDate.toISOString();
+    delete queryParams.page;
+    delete queryParams.limit;
 
-    return this.apiService.getPaginated<Attendance>(`${this.endpoint}/employee/${employeeId}`, queryParams);
+    return this.apiService.getPaginated<Attendance>(`${this.endpoint}/employee/${employeeId}`, page, limit, this.buildHttpParams(queryParams));
   }
 
   // Punch operations
@@ -58,7 +82,9 @@ export class AttendanceService {
     return this.apiService.post<PunchRecord>(`${this.endpoint}/punch/in`, {
       employeeId,
       ...data
-    });
+    }).pipe(
+      map(response => response.data)
+    );
   }
 
   punchOut(employeeId: string, data?: {
@@ -68,7 +94,9 @@ export class AttendanceService {
     return this.apiService.post<PunchRecord>(`${this.endpoint}/punch/out`, {
       employeeId,
       ...data
-    });
+    }).pipe(
+      map(response => response.data)
+    );
   }
 
   startBreak(employeeId: string, data?: {
@@ -78,7 +106,9 @@ export class AttendanceService {
     return this.apiService.post<PunchRecord>(`${this.endpoint}/punch/break-start`, {
       employeeId,
       ...data
-    });
+    }).pipe(
+      map(response => response.data)
+    );
   }
 
   endBreak(employeeId: string, data?: {
@@ -88,7 +118,9 @@ export class AttendanceService {
     return this.apiService.post<PunchRecord>(`${this.endpoint}/punch/break-end`, {
       employeeId,
       ...data
-    });
+    }).pipe(
+      map(response => response.data)
+    );
   }
 
   // Manual entry (Admin/HR only)
@@ -98,7 +130,9 @@ export class AttendanceService {
       date: record.date.toISOString(),
       checkIn: record.checkIn?.toISOString(),
       checkOut: record.checkOut?.toISOString()
-    });
+    }).pipe(
+      map(response => response.data)
+    );
   }
 
   updateAttendance(id: string, updates: Partial<Attendance>): Observable<Attendance> {
@@ -108,7 +142,9 @@ export class AttendanceService {
     if (updates.breakStart) updateData.breakStart = updates.breakStart.toISOString() as any;
     if (updates.breakEnd) updateData.breakEnd = updates.breakEnd.toISOString() as any;
 
-    return this.apiService.put<Attendance>(`${this.endpoint}/${id}`, updateData);
+    return this.apiService.put<Attendance>(`${this.endpoint}/${id}`, updateData).pipe(
+      map(response => response.data)
+    );
   }
 
   // Bulk operations
@@ -124,16 +160,22 @@ export class AttendanceService {
       }
     }));
 
-    return this.apiService.put<Attendance[]>(`${this.endpoint}/bulk`, { updates: bulkData });
+    return this.apiService.put<Attendance[]>(`${this.endpoint}/bulk`, { updates: bulkData }).pipe(
+      map(response => response.data)
+    );
   }
 
   // Today's attendance
   getTodayAttendance(): Observable<Attendance[]> {
-    return this.apiService.get<Attendance[]>(`${this.endpoint}/today`);
+    return this.apiService.get<Attendance[]>(`${this.endpoint}/today`).pipe(
+      map(response => response.data)
+    );
   }
 
   getEmployeeTodayAttendance(employeeId: string): Observable<Attendance | null> {
-    return this.apiService.get<Attendance | null>(`${this.endpoint}/today/${employeeId}`);
+    return this.apiService.get<Attendance | null>(`${this.endpoint}/today/${employeeId}`).pipe(
+      map(response => response.data)
+    );
   }
 
   // Punch logs
@@ -144,11 +186,14 @@ export class AttendanceService {
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<PunchRecord>> {
-    const queryParams: any = { ...params };
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const queryParams: any = {};
+    if (params?.employeeId) queryParams.employeeId = params.employeeId;
     if (params?.startDate) queryParams.startDate = params.startDate.toISOString();
     if (params?.endDate) queryParams.endDate = params.endDate.toISOString();
 
-    return this.apiService.getPaginated<PunchRecord>(`${this.endpoint}/punches`, queryParams);
+    return this.apiService.getPaginated<PunchRecord>(`${this.endpoint}/punches`, page, limit, this.buildHttpParams(queryParams));
   }
 
   // Statistics and reports
@@ -158,15 +203,21 @@ export class AttendanceService {
     department?: string;
     employeeId?: string;
   }): Observable<any> {
-    const queryParams: any = { ...params };
+    const queryParams: any = {};
+    if (params?.department) queryParams.department = params.department;
+    if (params?.employeeId) queryParams.employeeId = params.employeeId;
     if (params?.startDate) queryParams.startDate = params.startDate.toISOString();
     if (params?.endDate) queryParams.endDate = params.endDate.toISOString();
 
-    return this.apiService.get<any>(`${this.endpoint}/stats`, queryParams);
+    return this.apiService.get<any>(`${this.endpoint}/stats`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   getMonthlyReport(employeeId: string, year: number, month: number): Observable<any> {
-    return this.apiService.get<any>(`${this.endpoint}/report/${employeeId}/${year}/${month}`);
+    return this.apiService.get<any>(`${this.endpoint}/report/${employeeId}/${year}/${month}`).pipe(
+      map(response => response.data)
+    );
   }
 
   // Real-time status
@@ -181,6 +232,8 @@ export class AttendanceService {
       totalEmployees: number;
       lateArrivals: number;
       absentToday: number;
-    }>(`${this.endpoint}/live-status`);
+    }>(`${this.endpoint}/live-status`).pipe(
+      map(response => response.data)
+    );
   }
 }

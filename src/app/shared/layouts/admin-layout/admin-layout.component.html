@@ -54,7 +54,7 @@
             <li class="nav-subitem" *ngFor="let child of item.children">
               <a [routerLink]="child.route"
                  class="nav-sublink"
-                 [class.active]="isActiveRoute(child.route)">
+                 [class.active]="child.route && isActiveRoute(child.route)">
                 <div class="nav-subicon">
                   <i [class]="child.icon"></i>
                 </div>
@@ -107,7 +107,7 @@
             <select
               class="tenant-select"
               [value]="(tenant$ | async)?.tenantId"
-              (change)="switchTenant($event.target.value)"
+              (change)="switchTenant(getSelectValue($event))"
             >
               <option value="clr">CLR BioMetric</option>
               <option value="demo">Demo Corporation</option>

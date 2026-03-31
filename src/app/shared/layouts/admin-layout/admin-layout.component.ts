@@ -1,6 +1,7 @@
+
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TenantService } from '../../../core/services/tenant.service';
 import { ConfigService } from '../../../core/services/config.service';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css'
 })
@@ -30,6 +31,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   currentYear = new Date().getFullYear();
   currentRoute = '';
   breadcrumbs: { label: string; route?: string }[] = [];
+  window = window; // Expose window object to template
 
   private subscriptions = new Subscription();
 
@@ -68,6 +70,15 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  public isActiveRoute(route?: string): boolean {
+    if (!route) return false;
+    return this.currentRoute === route;
+  }
+
+  public getSelectValue(event: any): string {
+    return event?.target?.value || '';
   }
 
   logout(): void {

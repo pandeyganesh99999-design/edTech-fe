@@ -7,6 +7,12 @@ import { ThemeService } from './theme.service';
   providedIn: 'root'
 })
 export class TenantService {
+    // Demo tenants list for login dropdown
+    public tenants = [
+      { tenantId: 'clr', tenantName: 'CLR BioMetric' },
+      { tenantId: 'acme', tenantName: 'Acme Corp' },
+      { tenantId: 'demo', tenantName: 'Demo Institute' }
+    ];
   private themeService = inject(ThemeService);
   private tenantContextSubject = new BehaviorSubject<TenantConfig | null>(null);
   public tenantContext$ = this.tenantContextSubject.asObservable();

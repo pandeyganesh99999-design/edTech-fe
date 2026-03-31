@@ -6,6 +6,7 @@ export interface User {
   role: UserRole;
   tenantId: string;
   isActive: boolean;
+  avatar?: string;
   createdAt: Date;
   updatedAt: Date;
 }

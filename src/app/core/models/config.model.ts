@@ -6,6 +6,7 @@ export interface NavItem {
   children?: NavItem[];
   roles: string[];
   enabled?: boolean;
+  expanded?: boolean;
 }
 
 export interface ThemeConfig {
@@ -19,6 +20,7 @@ export interface ThemeConfig {
 export interface TenantConfig {
   tenantId: string;
   name: string;
+  tenantName?: string; // alias for name
   domain: string;
   isActive: boolean;
   theme?: ThemeConfig;

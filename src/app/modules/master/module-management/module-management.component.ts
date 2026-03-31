@@ -45,7 +45,7 @@ import { DataTableComponent, TableColumn, TableAction } from '../../../shared/co
                   <div class="col-md-6">
                     <div class="mb-3">
                       <label class="form-label">Module ID</label>
-                      <input type="text" class="form-control" [(ngModel)]="currentModule.moduleId" name="moduleId" required [disabled]="editingModule">
+                      <input type="text" class="form-control" [(ngModel)]="currentModule.moduleId" name="moduleId" required [disabled]="!!editingModule">
                       <small class="form-text text-muted">Unique identifier for the module</small>
                     </div>
                   </div>

@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { PaginatedResponse } from '../models/api.model';
 import {
   Leave,
   LeaveRequest,
   LeaveType,
-  LeaveStatus,
-  PaginatedResponse
+  LeaveStatus
 } from '../models/domain.model';
 
 @Injectable({
@@ -17,21 +19,41 @@ export class LeaveService {
 
   constructor(private apiService: ApiService) {}
 
+  private buildHttpParams(params: any): HttpParams {
+    let httpParams = new HttpParams();
+    if (params) {
+      Object.keys(params).forEach(key => {
+        if (params[key] !== undefined && params[key] !== null) {
+          httpParams = httpParams.set(key, params[key]);
+        }
+      });
+    }
+    return httpParams;
+  }
+
   // Leave Types
   getLeaveTypes(): Observable<LeaveType[]> {
-    return this.apiService.get<LeaveType[]>(`${this.endpoint}/types`);
+    return this.apiService.get<LeaveType[]>(`${this.endpoint}/types`).pipe(
+      map(response => response.data)
+    );
   }
 
   createLeaveType(leaveType: Omit<LeaveType, 'id' | 'createdAt' | 'updatedAt'>): Observable<LeaveType> {
-    return this.apiService.post<LeaveType>(`${this.endpoint}/types`, leaveType);
+    return this.apiService.post<LeaveType>(`${this.endpoint}/types`, leaveType).pipe(
+      map(response => response.data)
+    );
   }
 
   updateLeaveType(id: string, leaveType: Partial<LeaveType>): Observable<LeaveType> {
-    return this.apiService.put<LeaveType>(`${this.endpoint}/types/${id}`, leaveType);
+    return this.apiService.put<LeaveType>(`${this.endpoint}/types/${id}`, leaveType).pipe(
+      map(response => response.data)
+    );
   }
 
   deleteLeaveType(id: string): Observable<void> {
-    return this.apiService.delete<void>(`${this.endpoint}/types/${id}`);
+    return this.apiService.delete<void>(`${this.endpoint}/types/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
   // Leave Requests
@@ -43,11 +65,21 @@ export class LeaveService {
     page?: number;
     limit?: number;
   }): Observable<PaginatedResponse<Leave>> {
-    return this.apiService.getPaginated<Leave>(this.endpoint, params);
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const queryParams: any = {};
+    if (params?.employeeId) queryParams.employeeId = params.employeeId;
+    if (params?.status) queryParams.status = params.status;
+    if (params?.startDate) queryParams.startDate = params.startDate.toISOString();
+    if (params?.endDate) queryParams.endDate = params.endDate.toISOString();
+
+    return this.apiService.getPaginated<Leave>(this.endpoint, page, limit, this.buildHttpParams(queryParams));
   }
 
   getLeaveById(id: string): Observable<Leave> {
-    return this.apiService.get<Leave>(`${this.endpoint}/${id}`);
+    return this.apiService.get<Leave>(`${this.endpoint}/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
   createLeaveRequest(request: LeaveRequest): Observable<Leave> {
@@ -64,15 +96,21 @@ export class LeaveService {
       });
     }
 
-    return this.apiService.post<Leave>(`${this.endpoint}/request`, formData);
+    return this.apiService.post<Leave>(`${this.endpoint}/request`, formData).pipe(
+      map(response => response.data)
+    );
   }
 
   updateLeaveStatus(id: string, status: LeaveStatus, comments?: string): Observable<Leave> {
-    return this.apiService.put<Leave>(`${this.endpoint}/${id}/status`, { status, comments });
+    return this.apiService.put<Leave>(`${this.endpoint}/${id}/status`, { status, comments }).pipe(
+      map(response => response.data)
+    );
   }
 
   cancelLeave(id: string, reason: string): Observable<Leave> {
-    return this.apiService.put<Leave>(`${this.endpoint}/${id}/cancel`, { reason });
+    return this.apiService.put<Leave>(`${this.endpoint}/${id}/cancel`, { reason }).pipe(
+      map(response => response.data)
+    );
   }
 
   // Employee-specific methods
@@ -80,19 +118,31 @@ export class LeaveService {
     status?: LeaveStatus;
     year?: number;
   }): Observable<Leave[]> {
-    return this.apiService.get<Leave[]>(`${this.endpoint}/employee/${employeeId}`, params);
+    const queryParams: any = {};
+    if (params?.status) queryParams.status = params.status;
+    if (params?.year) queryParams.year = params.year;
+    
+    return this.apiService.get<Leave[]>(`${this.endpoint}/employee/${employeeId}`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 
   getLeaveBalance(employeeId: string): Observable<Record<string, number>> {
-    return this.apiService.get<Record<string, number>>(`${this.endpoint}/balance/${employeeId}`);
+    return this.apiService.get<Record<string, number>>(`${this.endpoint}/balance/${employeeId}`).pipe(
+      map(response => response.data)
+    );
   }
 
   // Calendar methods
   getLeavesForCalendar(startDate: Date, endDate: Date): Observable<Leave[]> {
-    return this.apiService.get<Leave[]>(`${this.endpoint}/calendar`, {
+    const queryParams = this.buildHttpParams({
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString()
     });
+    
+    return this.apiService.get<Leave[]>(`${this.endpoint}/calendar`, queryParams).pipe(
+      map(response => response.data)
+    );
   }
 
   // Statistics
@@ -101,6 +151,13 @@ export class LeaveService {
     endDate?: Date;
     department?: string;
   }): Observable<any> {
-    return this.apiService.get<any>(`${this.endpoint}/stats`, params);
+    const queryParams: any = {};
+    if (params?.department) queryParams.department = params.department;
+    if (params?.startDate) queryParams.startDate = params.startDate.toISOString();
+    if (params?.endDate) queryParams.endDate = params.endDate.toISOString();
+    
+    return this.apiService.get<any>(`${this.endpoint}/stats`, this.buildHttpParams(queryParams)).pipe(
+      map(response => response.data)
+    );
   }
 }

@@ -69,15 +69,15 @@ import { DataTableComponent, TableColumn, TableAction } from '../../../shared/co
                   <div class="row">
                     <div class="col-md-4">
                       <label class="form-label">Primary Color</label>
-                      <input type="color" class="form-control form-control-color" [(ngModel)]="currentTenant.theme.primary" name="primary">
+                      <input type="color" class="form-control form-control-color" [ngModel]="currentTenant.theme?.primary" (ngModelChange)="currentTenant.theme && (currentTenant.theme.primary = $event)" name="primary">
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Secondary Color</label>
-                      <input type="color" class="form-control form-control-color" [(ngModel)]="currentTenant.theme.secondary" name="secondary">
+                      <input type="color" class="form-control form-control-color" [ngModel]="currentTenant.theme?.secondary" (ngModelChange)="currentTenant.theme && (currentTenant.theme.secondary = $event)" name="secondary">
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Accent Color</label>
-                      <input type="color" class="form-control form-control-color" [(ngModel)]="currentTenant.theme.accent" name="accent">
+                      <input type="color" class="form-control form-control-color" [ngModel]="currentTenant.theme?.accent" (ngModelChange)="currentTenant.theme && (currentTenant.theme.accent = $event)" name="accent">
                     </div>
                   </div>
                 </div>

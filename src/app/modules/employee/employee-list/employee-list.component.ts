@@ -176,7 +176,7 @@ export class EmployeeListComponent {
 
   actions: TableAction[] = [
     { label: 'Edit', icon: 'bi-pencil', action: 'edit', color: 'primary' },
-    { label: 'View', icon: 'bi-eye', action: 'view', color: 'info' },
+    { label: 'View', icon: 'bi-eye', action: 'view', color: 'secondary' },
     { label: 'Delete', icon: 'bi-trash', action: 'delete', color: 'danger' }
   ];
 
@@ -259,8 +259,5 @@ export class EmployeeListComponent {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }
-}
-    return item.id;
   }
 }
