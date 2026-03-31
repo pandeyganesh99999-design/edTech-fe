@@ -1,0 +1,94 @@
+<div class="employee-list">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+    <div>
+      <h2>Employee Master</h2>
+      <p class="text-muted">Full employee directory with search, sort, and export</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-outline-secondary" (click)="onClear()"><i class="bi bi-x-circle"></i> Reset Filters</button>
+      <button class="btn btn-outline-primary" (click)="exportCsv()"><i class="bi bi-download"></i> Export CSV</button>
+      <a routerLink="/employee/add" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add Employee</a>
+    </div>
+  </div>
+
+  <div class="card p-3 mb-3">
+    <div class="row g-2 align-items-center">
+      <div class="col-md-3">
+        <input type="text" class="form-control" placeholder="Search by name/ID/email" [(ngModel)]="filterText">
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="selectedRole">
+          <option value="All">All Roles</option>
+          <option value="Admin">Admin</option>
+          <option value="HR">HR</option>
+          <option value="Manager">Manager</option>
+          <option value="Employee">Employee</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="selectedStatus">
+          <option value="All">All Status</option>
+          <option value="Active">Active</option>
+          <option value="On Leave">On Leave</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select class="form-select" [(ngModel)]="selectedDepartment">
+          <option value="All">All Departments</option>
+          <option value="IT">IT</option>
+          <option value="HR">HR</option>
+          <option value="Operations">Operations</option>
+          <option value="Finance">Finance</option>
+          <option value="Sales">Sales</option>
+        </select>
+      </div>
+      <div class="col-md-1 d-flex align-items-center">
+        <button class="btn btn-outline-secondary" (click)="page = 1;">Go</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive" style="min-height: 165px;">
+    <table class="table table-bordered border-0 align-middle mb-0 bg-white table-hover">
+      <thead class="bg-light">
+        <tr>
+          <th class="cursor-pointer" (click)="onSort('empId')">Emp ID <i class="bi" [ngClass]="sortField === 'empId' ? (sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill') : ''"></i></th>
+          <th class="cursor-pointer" (click)="onSort('name')">Name <i class="bi" [ngClass]="sortField === 'name' ? (sortDirection === 'asc' ? 'bi-caret-up-fill' : 'bi-caret-down-fill') : ''"></i></th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Department</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let emp of pagedEmployees; trackBy: trackById">
+          <td>{{ emp.empId }}</td>
+          <td>{{ emp.name }}</td>
+          <td>{{ emp.email }}</td>
+          <td>{{ emp.role }}</td>
+          <td>
+            <span class="badge" [ngClass]="{ 'bg-success': emp.status === 'Active', 'bg-warning': emp.status === 'On Leave', 'bg-secondary': emp.status === 'Inactive' }">{{ emp.status }}</span>
+          </td>
+          <td>{{ emp.department }}</td>
+          <td class="text-center">
+            <a [routerLink]="['/employee/edit', emp.id]" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+            <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(emp.empId)"><i class="bi bi-trash"></i></button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredEmployees.length === 0"><td colspan="7" class="text-center py-5 text-muted">No records found for selected filters</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div>
+      <small>Showing {{ (page - 1) * pageSize + 1 }} to {{ min(page * pageSize, filteredEmployees.length) }} of {{ filteredEmployees.length }} entries</small>
+    </div>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-secondary" (click)="changePage(-1)" [disabled]="page <= 1">Previous</button>
+      <button class="btn btn-outline-secondary" (click)="changePage(1)" [disabled]="page >= totalPages">Next</button>
+    </div>
+  </div>
+</div>

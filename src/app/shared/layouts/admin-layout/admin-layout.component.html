@@ -1,0 +1,197 @@
+<div class="admin-layout">
+  <!-- Modern Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-brand" *ngIf="!sidebarCollapsed">
+        <div class="brand-logo">
+          <img *ngIf="(tenant$ | async)?.logo" [src]="(tenant$ | async)?.logo" alt="Logo" class="brand-logo-img">
+          <div *ngIf="!(tenant$ | async)?.logo" class="brand-logo-placeholder">
+            <i class="bi bi-building"></i>
+          </div>
+        </div>
+        <div class="brand-info">
+          <h3 class="brand-name">{{ (tenant$ | async)?.tenantName || 'Empos' }}</h3>
+          <span class="brand-domain">{{ (tenant$ | async)?.domain }}</span>
+        </div>
+      </div>
+      <div class="sidebar-toggle" *ngIf="sidebarCollapsed">
+        <i class="bi bi-building"></i>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <li class="nav-item" *ngFor="let item of navItems">
+          <!-- Parent Menu Item -->
+          <div class="nav-item-wrapper" [class.has-children]="item.children?.length">
+            <a *ngIf="item.route"
+               [routerLink]="item.route"
+               class="nav-link"
+               [class.active]="isActiveRoute(item.route)">
+              <div class="nav-icon">
+                <i [class]="item.icon"></i>
+              </div>
+              <span class="nav-label" *ngIf="!sidebarCollapsed">{{ item.label }}</span>
+              <div class="nav-indicator" *ngIf="isActiveRoute(item.route)"></div>
+            </a>
+
+            <button *ngIf="!item.route"
+                    class="nav-link nav-toggle"
+                    [class.expanded]="item.expanded"
+                    (click)="item.expanded = !item.expanded">
+              <div class="nav-icon">
+                <i [class]="item.icon"></i>
+              </div>
+              <span class="nav-label" *ngIf="!sidebarCollapsed">{{ item.label }}</span>
+              <i class="nav-chevron bi bi-chevron-down" *ngIf="!sidebarCollapsed && item.children?.length"></i>
+            </button>
+          </div>
+
+          <!-- Submenu -->
+          <ul class="nav-submenu" *ngIf="item.children?.length && (!sidebarCollapsed || item.expanded)">
+            <li class="nav-subitem" *ngFor="let child of item.children">
+              <a [routerLink]="child.route"
+                 class="nav-sublink"
+                 [class.active]="isActiveRoute(child.route)">
+                <div class="nav-subicon">
+                  <i [class]="child.icon"></i>
+                </div>
+                <span class="nav-sublabel" *ngIf="!sidebarCollapsed">{{ child.label }}</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="sidebar-theme-toggle" *ngIf="!sidebarCollapsed">
+        <button class="theme-btn" (click)="toggleDarkMode()" title="Toggle theme">
+          <i class="bi bi-moon-stars"></i>
+          <span>Dark Mode</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-content" [class.sidebar-collapsed]="sidebarCollapsed">
+    <!-- Modern Top Header -->
+    <header class="top-header">
+      <div class="header-content">
+        <!-- Left Section -->
+        <div class="header-left">
+          <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+            <i class="bi" [class]="sidebarCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
+          </button>
+
+          <!-- Breadcrumbs -->
+          <nav class="breadcrumb-nav" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item" *ngFor="let crumb of breadcrumbs; let last = last"
+                  [class.active]="last">
+                <a *ngIf="crumb.route && !last" [routerLink]="crumb.route">{{ crumb.label }}</a>
+                <span *ngIf="!crumb.route || last">{{ crumb.label }}</span>
+              </li>
+            </ol>
+          </nav>
+        </div>
+
+        <!-- Right Section -->
+        <div class="header-right">
+          <!-- Tenant Switcher -->
+          <div class="tenant-switcher" *ngIf="!sidebarCollapsed">
+            <select
+              class="tenant-select"
+              [value]="(tenant$ | async)?.tenantId"
+              (change)="switchTenant($event.target.value)"
+            >
+              <option value="clr">CLR BioMetric</option>
+              <option value="demo">Demo Corporation</option>
+            </select>
+          </div>
+
+          <!-- Search -->
+          <div class="header-search">
+            <div class="search-input-wrapper">
+              <i class="bi bi-search search-icon"></i>
+              <input type="text" class="search-input" placeholder="Search..." />
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <button class="header-btn notification-btn" title="Notifications">
+            <i class="bi bi-bell"></i>
+            <span class="notification-badge">3</span>
+          </button>
+
+          <!-- User Menu -->
+          <div class="user-menu">
+            <button class="user-menu-btn" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar">
+                <img *ngIf="(user$ | async)?.user?.avatar"
+                     [src]="(user$ | async)?.user?.avatar"
+                     alt="Avatar"
+                     class="avatar-img">
+                <div *ngIf="!(user$ | async)?.user?.avatar" class="avatar-placeholder">
+                  {{ ((user$ | async)?.user?.firstName || 'U')[0] }}
+                </div>
+              </div>
+              <div class="user-info" *ngIf="!sidebarCollapsed">
+                <span class="user-name">{{ (user$ | async)?.user?.firstName }} {{ (user$ | async)?.user?.lastName }}</span>
+                <span class="user-role">{{ (user$ | async)?.user?.role | titlecase }}</span>
+              </div>
+              <i class="bi bi-chevron-down user-chevron"></i>
+            </button>
+
+            <ul class="dropdown-menu user-dropdown">
+              <li class="dropdown-header">
+                <div class="dropdown-user-info">
+                  <strong>{{ (user$ | async)?.user?.firstName }} {{ (user$ | async)?.user?.lastName }}</strong>
+                  <small class="text-muted">{{ (user$ | async)?.user?.email }}</small>
+                </div>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" routerLink="/profile">
+                <i class="bi bi-person"></i> Profile Settings
+              </a></li>
+              <li><a class="dropdown-item" routerLink="/settings">
+                <i class="bi bi-gear"></i> Preferences
+              </a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item text-danger" (click)="logout()">
+                <i class="bi bi-box-arrow-right"></i> Sign Out
+              </a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-container">
+      <router-outlet></router-outlet>
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <span class="footer-text">
+            © {{ currentYear }} {{ (tenant$ | async)?.tenantName || 'Empos' }}.
+            Powered by modern web technologies.
+          </span>
+        </div>
+        <div class="footer-right">
+          <span class="footer-version">v2.1.0</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" *ngIf="!sidebarCollapsed && window.innerWidth <= 768" (click)="toggleSidebar()"></div>
+</div>

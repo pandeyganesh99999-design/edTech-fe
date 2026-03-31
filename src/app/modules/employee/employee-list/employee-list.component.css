@@ -1,0 +1,40 @@
+.employee-list h2 {
+  color: #0b3f91;
+  font-weight: 700;
+}
+
+.employee-list p {
+  color: #6c757d;
+}
+
+.card, .table-responsive, .table {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(22, 22, 30, 0.06);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+}
+
+.table th {
+  background: #f8f9ff;
+  border-top: 1px solid #e8ecf4;
+  color: #0d3a7a;
+}
+
+.table tbody tr:hover {
+  background: #f3f7ff;
+}
+
+.btn-outline-primary, .btn-outline-secondary {
+  border-radius: 30px;
+}
+
+.badge {
+  font-weight: 500;
+  padding: 0.42em 0.8em;
+}

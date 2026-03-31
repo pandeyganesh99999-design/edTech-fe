@@ -1,0 +1,191 @@
+<div class="dashboard-home">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="text-muted">Welcome back, {{ (user$ | async)?.user?.firstName }}!</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-primary">
+              <i class="bi bi-people"></i>
+            </div>
+            <div class="ms-3">
+              <h3 class="stats-number">150</h3>
+              <p class="stats-label mb-0">Total Employees</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-success">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="ms-3">
+              <h3 class="stats-number">142</h3>
+              <p class="stats-label mb-0">Present Today</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-warning">
+              <i class="bi bi-calendar-x"></i>
+            </div>
+            <div class="ms-3">
+              <h3 class="stats-number">8</h3>
+              <p class="stats-label mb-0">On Leave</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="stats-icon bg-info">
+              <i class="bi bi-clock"></i>
+            </div>
+            <div class="ms-3">
+              <h3 class="stats-number">95%</h3>
+              <p class="stats-label mb-0">Attendance Rate</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-outline-primary w-100 quick-action-btn">
+                <i class="bi bi-plus-circle"></i>
+                <span>Add Employee</span>
+              </button>
+            </div>
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-outline-success w-100 quick-action-btn">
+                <i class="bi bi-calendar-check"></i>
+                <span>Mark Attendance</span>
+              </button>
+            </div>
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-outline-warning w-100 quick-action-btn">
+                <i class="bi bi-calendar-plus"></i>
+                <span>Apply Leave</span>
+              </button>
+            </div>
+            <div class="col-md-3 mb-3">
+              <button class="btn btn-outline-info w-100 quick-action-btn">
+                <i class="bi bi-bar-chart"></i>
+                <span>View Reports</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Recent Attendance</h5>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>John Doe</strong>
+                  <br>
+                  <small class="text-muted">Checked in at 9:00 AM</small>
+                </div>
+                <span class="badge bg-success">Present</span>
+              </div>
+            </div>
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Jane Smith</strong>
+                  <br>
+                  <small class="text-muted">Checked in at 9:15 AM</small>
+                </div>
+                <span class="badge bg-warning">Late</span>
+              </div>
+            </div>
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Bob Johnson</strong>
+                  <br>
+                  <small class="text-muted">On leave</small>
+                </div>
+                <span class="badge bg-secondary">Leave</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Pending Approvals</h5>
+        </div>
+        <div class="card-body">
+          <div class="list-group list-group-flush">
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Alice Wilson</strong>
+                  <br>
+                  <small class="text-muted">Leave request: 2 days</small>
+                </div>
+                <button class="btn btn-sm btn-outline-primary">Review</button>
+              </div>
+            </div>
+            <div class="list-group-item px-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Charlie Brown</strong>
+                  <br>
+                  <small class="text-muted">Overtime approval</small>
+                </div>
+                <button class="btn btn-sm btn-outline-primary">Review</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
